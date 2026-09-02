@@ -27,7 +27,9 @@ brew install --cask nlink-jp/tap/gem-usage-lens-gui
 `GemUsageLens.app` を取得し、アプリケーションフォルダに置きます。
 
 前提: gem-agent の transcript が `~/.local/state/gem-agent/sessions` にあること。
-認証情報・ネットワークは不要です。
+認証情報・ネットワークは不要です。gem-agent を `GEMAGENT_STATE_DIR` 付きで動かしている
+場合、Finder から起動したアプリはシェルの環境変数を見ないので、代わりに
+`~/.config/gem-usage-lens/config.toml` の `[sources] sessions_root` でその場所を指定してください。
 
 ## 画面
 
@@ -56,7 +58,7 @@ Vertex AI には窓型のクォータが無いので、校正は不要です。
 
 ### 古い transcript
 
-gem-agent v0.57（ADR-0057）以前の transcript は main ループしか記録しておらず、risk /
+gem-agent v0.55（ADR-0057、2026-08-30）以前の transcript は main ループしか記録しておらず、risk /
 compaction の呼び出しがありません。それを含む数字は下限値であり、ポップオーバーは
 その旨を表示します。
 

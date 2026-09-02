@@ -55,9 +55,20 @@ final class BudgetTests: XCTestCase {
         m.budget = status(cost: basis(used: 0, limit: 0, state: .unset),
                           tokens: basis(used: 20_000_000, limit: 50_000_000))
         XCTAssertEqual(m.monthlyRemainingLabel, "30.0M · 60%")
-        // Monitor off → today's price (which is "…" before the first refresh).
+        // Monitor off → the label says so instead of quietly showing another figure.
         m.budget = nil
+        UserDefaults.standard.set(false, forKey: SettingsKey.budgetEnabled)
+        XCTAssertEqual(m.monthlyRemainingLabel, "budget off")
+        // Monitor on but no answer yet → today's price ("…" before the first refresh).
+        UserDefaults.standard.set(true, forKey: SettingsKey.budgetEnabled)
         XCTAssertEqual(m.monthlyRemainingLabel, "…")
+        UserDefaults.standard.removeObject(forKey: SettingsKey.budgetEnabled)
+    }
+
+    func testChecksumLabel() {
+        XCTAssertNil(UsageModel.checksumLabel(0))
+        XCTAssertEqual(UsageModel.checksumLabel(1), "1 call failed the accounting checksum — run `gem-usage-lens verify`")
+        XCTAssertTrue(UsageModel.checksumLabel(4)!.hasPrefix("4 calls"))
     }
 
     func testForecastLabels() {

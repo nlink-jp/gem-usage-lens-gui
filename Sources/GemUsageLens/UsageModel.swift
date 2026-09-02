@@ -9,7 +9,9 @@ final class UsageModel: ObservableObject {
     @Published var todaySummary: Summary?
     @Published var last30USD: Double?        // actual last-30-days total (matches the analysis panel)
     @Published var last30Partial: Int = 0    // calls from pre-ADR-0057 transcripts in the last 30 days
+    @Published var last30Checksum: Int = 0   // calls whose buckets don't add up (this build misreads a transcript)
     @Published var budget: BudgetStatus?     // monthly-budget monitor (nil = disabled/unavailable)
+    @Published var notificationsDenied = false  // the OS refused notifications; the toggle alone cannot say so
     @Published var lastError: String?        // short, user-facing summary
     @Published var lastErrorDetail: String?  // raw CLI output, shown smaller
     @Published var lastUpdated: Date?
@@ -51,7 +53,10 @@ final class UsageModel: ObservableObject {
     /// nothing about how much of the month it covers. Falls back to today's
     /// cost when the monitor is off.
     var monthlyRemainingLabel: String {
-        guard let b = budget, let w = b.watched, let basis = b.watchedBasis else { return todayPrice }
+        guard let b = budget, let w = b.watched, let basis = b.watchedBasis else {
+            // Say the monitor is off rather than silently showing another figure.
+            return BudgetSettings.current().enabled ? todayPrice : "budget off"
+        }
         let amount: String
         switch basis {
         case .cost: amount = String(format: "$%.0f", w.remaining)   // menu bar: no cents
@@ -101,23 +106,41 @@ final class UsageModel: ObservableObject {
     func refreshBudget() {
         queue.async { [weak self] in
             guard let self else { return }
-            let b = try? self.fetchBudget()
-            DispatchQueue.main.async { self.applyBudget(b, notify: false) }
+            do {
+                let b = try self.fetchBudget()
+                DispatchQueue.main.async {
+                    self.applyBudget(b, notify: false)
+                    self.lastError = nil
+                    self.lastErrorDetail = nil
+                }
+            } catch {
+                // A failed budget query is shown, not swallowed: the section
+                // disappearing with no word would read as "budget off".
+                DispatchQueue.main.async { self.applyBudget(nil, notify: false) }
+                self.setError(error)
+            }
         }
     }
 
     /// Ask for notification permission at the moment the user turns the
     /// feature on — not when the first alert would fire, which may be never.
+    /// A denial is surfaced on screen (`notificationsDenied`), because a
+    /// toggle that is ON while nothing can ever arrive is a broken promise.
     func requestNotificationAuth() {
         let center = UNUserNotificationCenter.current()
         center.delegate = notificationDelegate
-        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
-            if !granted || error != nil {
+        center.requestAuthorization(options: [.alert, .sound]) { [weak self] granted, error in
+            let denied = !granted || error != nil
+            DispatchQueue.main.async { self?.notificationsDenied = denied }
+            if denied {
                 let why = error?.localizedDescription ?? "not granted"
                 FileHandle.standardError.write(Data("gem-usage-lens-gui: notifications \(why) — enable them in System Settings › Notifications\n".utf8))
             }
         }
     }
+
+    /// Where macOS keeps the per-app notification switch.
+    static let notificationSettingsURL = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension")!
 
     private func notifyBudget(_ b: BudgetStatus, _ w: BudgetBasis, _ basis: BudgetBasisChoice) {
         let content = UNMutableNotificationContent()
@@ -217,6 +240,7 @@ final class UsageModel: ObservableObject {
                     self.todaySummary = s
                     self.last30USD = last30.totalUSD
                     self.last30Partial = last30.partialRecords ?? 0
+                    self.last30Checksum = last30.checksumMismatches ?? 0
                     self.unpriced = Self.unpricedUsage(last30)
                     // A cleared badge ends the episode: the next one starts
                     // with a fresh Reprice, whatever happened last time.
@@ -292,6 +316,14 @@ final class UsageModel: ObservableObject {
     static func partialLabel(_ n: Int) -> String? {
         guard n > 0 else { return nil }
         return "\(n) call\(n == 1 ? "" : "s") from older gem-agent transcripts — figures are a lower bound"
+    }
+
+    /// A one-line alarm for records whose buckets do not add up to the API's
+    /// total: this build is misreading a transcript, and the numbers cannot
+    /// be trusted until `gem-usage-lens verify` explains why.
+    static func checksumLabel(_ n: Int) -> String? {
+        guard n > 0 else { return nil }
+        return "\(n) call\(n == 1 ? "" : "s") failed the accounting checksum — run `gem-usage-lens verify`"
     }
 
     private func setError(_ error: Error) {

@@ -39,9 +39,22 @@ struct PopoverView: View {
                         .font(.caption2).foregroundStyle(.tertiary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                if let alarm = UsageModel.checksumLabel(model.last30Checksum) {
+                    Label(alarm, systemImage: "exclamationmark.triangle")
+                        .font(.caption2).foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 if let u = model.unpriced {
                     unpricedSection(u)
+                }
+
+                // A failure after the first successful load (a budget query,
+                // a later refresh) must not hide behind the stale numbers.
+                if let err = model.lastError {
+                    Label(err, systemImage: "exclamationmark.triangle")
+                        .font(.caption2).foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             } else if let err = model.lastError {
                 Label("Couldn't load usage", systemImage: "exclamationmark.triangle")

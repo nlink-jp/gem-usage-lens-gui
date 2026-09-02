@@ -59,7 +59,7 @@ by project. Hover a bar for the exact figures.
   bundled rate table does not know their model. The popover names them and
   offers **Reprice** — use it after updating the app.
 - "from older gem-agent transcripts — figures are a lower bound" appears when
-  transcripts written before gem-agent v0.57 fall inside a figure; those files
+  transcripts written before gem-agent v0.55 (2026-08-30) fall inside a figure; those files
   did not record risk or compaction calls.
 
 ## Where the data lives

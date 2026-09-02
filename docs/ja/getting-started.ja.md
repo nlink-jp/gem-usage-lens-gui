@@ -53,7 +53,7 @@ GemUsageLens を開くと、数秒でメニューバーに `$` の数字が現�
 - メニューバーの `⚠︎` は、同梱の単価表が知らないモデルの呼び出しが $0 で保存されている
   印です。ポップオーバーがそれを名指しし、**Reprice** を提供します。アプリを更新した後に
   押してください。
-- "from older gem-agent transcripts — figures are a lower bound" は、gem-agent v0.57
+- "from older gem-agent transcripts — figures are a lower bound" は、gem-agent v0.55（2026-08-30）
   以前の transcript が集計に含まれるときに出ます。当時のファイルは risk / compaction の
   呼び出しを記録していません。
 

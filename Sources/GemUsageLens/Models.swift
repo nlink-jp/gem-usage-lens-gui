@@ -10,7 +10,8 @@ struct Row: Codable, Identifiable {
     let cachedTokens: Int   // the share of prompt served from cache (not an addition)
     let totalTokens: Int    // prompt + output + thoughts — the billed count
     let costUSD: Double
-    let partialRecords: Int
+    /// Optional so a `report --json` from an older CLI on PATH still decodes.
+    let partialRecords: Int?
 
     var id: String { key }
 

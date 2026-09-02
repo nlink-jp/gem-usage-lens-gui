@@ -29,7 +29,10 @@ Or download `GemUsageLens.app` from the
 drop it into Applications.
 
 Requirements: gem-agent transcripts under `~/.local/state/gem-agent/sessions`.
-No credentials, no network.
+No credentials, no network. If gem-agent runs with `GEMAGENT_STATE_DIR` set,
+the app (launched from Finder, without your shell's environment) will not see
+it — point the CLI at the directory with `[sources] sessions_root` in
+`~/.config/gem-usage-lens/config.toml` instead.
 
 ## What you see
 
@@ -63,7 +66,7 @@ Reprice recomputes the stored history in place.
 
 ### Older transcripts
 
-Transcripts written by gem-agent before v0.57 (ADR-0057) recorded only the
+Transcripts written by gem-agent before v0.55 (ADR-0057, 2026-08-30) recorded only the
 main loop, not risk or compaction calls. Figures that include them are a
 lower bound, and the popover says so.
 

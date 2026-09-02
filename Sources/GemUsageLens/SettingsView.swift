@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Monthly-budget settings ("Settings…" in the popover). Binds the
@@ -34,6 +35,18 @@ struct SettingsView: View {
                     }
                 Text("Off = colour/bar only, no system notifications.")
                     .font(.caption).foregroundStyle(.secondary)
+                if enabled && notificationsEnabled && model.notificationsDenied {
+                    // The toggle is ON but macOS will deliver nothing: say so,
+                    // and open the only place that can change it.
+                    HStack {
+                        Text("Notifications are turned off for this app in System Settings.")
+                            .font(.caption).foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        Button("Open Settings") { NSWorkspace.shared.open(UsageModel.notificationSettingsURL) }
+                            .controlSize(.small)
+                    }
+                }
             }
 
             Section("Budget") {

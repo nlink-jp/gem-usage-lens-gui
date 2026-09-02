@@ -15,6 +15,12 @@ final class DecodeTests: XCTestCase {
         XCTAssertEqual(rows[0].totalTokens, 1070)
         XCTAssertEqual(rows[0].partialRecords, 2)
         XCTAssertEqual(rows[0].costUSD, 1.25, accuracy: 0.001)
+
+        // A row from an older CLI without partial_records still decodes.
+        let old = """
+        [{"key":"x","records":1,"prompt_tokens":1,"output_tokens":1,"thoughts_tokens":0,"cached_tokens":0,"total_tokens":2,"cost_usd":0.1}]
+        """.data(using: .utf8)!
+        XCTAssertNil(try CLIJSON.decoder().decode([Row].self, from: old)[0].partialRecords)
     }
 
     func testDecodeSummary() throws {
