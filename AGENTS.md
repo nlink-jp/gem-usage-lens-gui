@@ -33,6 +33,7 @@ Sources/GemUsageLens/
   Models.swift       Codable Row / Summary / BudgetStatus (match the CLI's --json)
   MenuBarMode.swift  price / tokens / both / monthly
   Settings.swift     UserDefaults keys + BudgetSettings snapshot → CLI `budget` flags
+  LoginItem.swift    SMAppService wrapper for launch-at-login (pure state mapping)
   AppVersion.swift   the build's version for display (pure fallback rule)
   PopoverView.swift  today + last 30 + unpriced badge + monthly bar + pace
   AnalysisView.swift Swift Charts: daily / stacked by model / by model / by source / top projects
@@ -93,6 +94,13 @@ assets/              AppIcon-1024.png (→ AppIcon.icns at build)
 - **Signing**: `--deep` signs the bundled CLI too. No entitlements needed
   (pure SwiftUI/AppKit). `make verify-release` refuses a bundled CLI whose
   `--version` is not a clean `vX.Y.Z`.
+
+- **Launch at login (`LoginItem.swift`)**: `SMAppService.mainApp` is the source of
+  truth — no persisted flag; the toggle mirrors `LoginItem.current` on appear and
+  after every change. `.notFound` (never registered) maps to `notEnabled`, never to
+  a disabled control (the only way to register is the switch). Every call is read
+  back (`verifyMessage`) and any disagreement is shown beside the toggle with an
+  "Open Login Items" button. Registration needs a real `.app`; `swift run` says so.
 
 ## Design reference
 

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-03
+
+### Added
+
+- **Launch at login** toggle in Settings (General). SMAppService is the source
+  of truth: the switch mirrors its status, a change is read back and any
+  disagreement (approval pending, not registered, bare binary) is written
+  next to the switch with a button to System Settings › Login Items.
+
 ## [0.1.1] - 2026-09-03
 
 Bundles gem-usage-lens v0.1.1 (tool-result tokens no longer fail the accounting checksum).

@@ -51,7 +51,7 @@ buttons for Analysis, Settings, Refresh, Quit.
 (optionally stacked by model), plus cost by model, by call source (main /
 risk / compaction / web search …) and by project.
 
-**Settings window** — the monthly budget: on/off, notifications, measure by
+**Settings window** — **Launch at login** (a macOS login item; approve it in System Settings › General › Login Items if asked), then the monthly budget: on/off, notifications, measure by
 cost or tokens, the limit, warning / critical percents, and the current state.
 The month resets on the 1st at 00:00 local time; there is nothing to
 calibrate, since Vertex AI has no rolling quota.

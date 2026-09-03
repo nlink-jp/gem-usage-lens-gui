@@ -7,6 +7,10 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var model: UsageModel
 
+    // Mirrors SMAppService; refreshed on appear and after every change.
+    @State private var launchAtLogin = LoginItem.isOn(LoginItem.current)
+    @State private var loginItemMessage: String?
+
     @AppStorage(SettingsKey.budgetEnabled) private var enabled = false
     @AppStorage(SettingsKey.budgetBasis) private var basisRaw = BudgetBasisChoice.cost.rawValue
     @AppStorage(SettingsKey.budgetCost) private var limitCost = 100.0
@@ -19,6 +23,25 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("General") {
+                Toggle("Launch at login", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, on in
+                        // Ignore the echo of our own read-back below.
+                        guard on != LoginItem.isOn(LoginItem.current) else { return }
+                        loginItemMessage = LoginItem.setEnabled(on)
+                        launchAtLogin = LoginItem.isOn(LoginItem.current)
+                    }
+                if let msg = loginItemMessage {
+                    HStack(alignment: .top) {
+                        Text(msg).font(.caption).foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        Button("Open Login Items") { NSWorkspace.shared.open(LoginItem.settingsURL) }
+                            .controlSize(.small)
+                    }
+                }
+            }
+
             Section {
                 Toggle("Monitor monthly budget", isOn: $enabled)
                     .onChange(of: enabled) { _, on in
@@ -94,6 +117,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear { launchAtLogin = LoginItem.isOn(LoginItem.current) }
         .frame(width: 400)
         .fixedSize(horizontal: false, vertical: true)
         // Every knob is a CLI flag: re-query the budget on change (cheap, and
