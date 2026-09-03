@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-09-03
+
+Bundles gem-usage-lens v0.1.2: the `tool_prompt` bucket is derived only when
+the key is absent from a transcript (written before gem-agent v0.62.0 /
+ADR-0066); an explicit value, zero included, is taken as written, so a record
+that says zero and does not balance is reported as a checksum mismatch
+instead of being re-labelled as derived. The `riskbook_learn` source joins
+the known sources. No app-side change.
+
 ## [0.1.2] - 2026-09-03
 
 ### Added
