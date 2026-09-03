@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-09-03
+
+Bundles gem-usage-lens v0.1.3: `gemini-3.8-flash` (released 2026-09-02) is
+priced in the built-in rate table at the same introductory rate as 3.7 / 3.6
+Flash, and Grounding with Google Search is charged at the Gemini 3 rate of
+$14 per 1,000 Grounding Queries instead of the Gemini 2.x $35. Use
+**Reprice** in the popover after updating to apply the new grounding rate to
+stored history. No app-side change.
+
 ## [0.1.3] - 2026-09-03
 
 Bundles gem-usage-lens v0.1.2: the `tool_prompt` bucket is derived only when
