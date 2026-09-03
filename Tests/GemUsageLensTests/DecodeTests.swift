@@ -16,6 +16,12 @@ final class DecodeTests: XCTestCase {
         XCTAssertEqual(rows[0].partialRecords, 2)
         XCTAssertEqual(rows[0].costUSD, 1.25, accuracy: 0.001)
 
+        XCTAssertNil(rows[0].toolPromptTokens) // v0.1.0 row: field absent
+        let v011 = """
+        [{"key":"web_fetch","records":1,"prompt_tokens":1200,"output_tokens":900,"thoughts_tokens":40,
+          "cached_tokens":0,"tool_prompt_tokens":7000,"total_tokens":9140,"cost_usd":0.01,"partial_records":0}]
+        """.data(using: .utf8)!
+        XCTAssertEqual(try CLIJSON.decoder().decode([Row].self, from: v011)[0].toolPromptTokens, 7000)
         // A row from an older CLI without partial_records still decodes.
         let old = """
         [{"key":"x","records":1,"prompt_tokens":1,"output_tokens":1,"thoughts_tokens":0,"cached_tokens":0,"total_tokens":2,"cost_usd":0.1}]

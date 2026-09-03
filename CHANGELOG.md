@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-03
+
+Bundles gem-usage-lens v0.1.1 (tool-result tokens no longer fail the accounting checksum).
+
+### Added
+
+- The popover's token grid shows a "Tool results" row when built-in tool
+  results (search grounding, URL context) were fed back as input
+  (`tool_prompt_tokens`, optional in the contract).
+
 ## [0.1.0] - 2026-09-03
 
 Initial release — the gem-agent counterpart of claude-usage-lens-gui, bundling

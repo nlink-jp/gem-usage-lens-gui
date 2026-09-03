@@ -22,6 +22,9 @@ struct PopoverView: View {
                     tokenRow("Prompt", s.promptTokens, note: s.cachedTokens > 0 ? "\(Self.compact(s.cachedTokens)) cached" : nil)
                     tokenRow("Output", s.outputTokens, note: nil)
                     tokenRow("Thoughts", s.thoughtsTokens, note: nil)
+                    if let tool = s.toolPromptTokens, tool > 0 {
+                        tokenRow("Tool results", tool, note: nil)
+                    }
                     tokenRow("Billed", s.totalTokens, note: nil)
                 }
                 .font(.callout)

@@ -8,7 +8,10 @@ struct Row: Codable, Identifiable {
     let outputTokens: Int
     let thoughtsTokens: Int
     let cachedTokens: Int   // the share of prompt served from cache (not an addition)
-    let totalTokens: Int    // prompt + output + thoughts — the billed count
+    /// Built-in tool results (search grounding, URL context) fed back as
+    /// input; CLI ≥ 0.1.1, so optional.
+    let toolPromptTokens: Int?
+    let totalTokens: Int    // prompt + output + thoughts + tool prompt — the billed count
     let costUSD: Double
     /// Optional so a `report --json` from an older CLI on PATH still decodes.
     let partialRecords: Int?
@@ -21,6 +24,7 @@ struct Row: Codable, Identifiable {
         case outputTokens = "output_tokens"
         case thoughtsTokens = "thoughts_tokens"
         case cachedTokens = "cached_tokens"
+        case toolPromptTokens = "tool_prompt_tokens"
         case totalTokens = "total_tokens"
         case costUSD = "cost_usd"
         case partialRecords = "partial_records"
@@ -37,6 +41,7 @@ struct Summary: Codable {
     let outputTokens: Int
     let thoughtsTokens: Int
     let cachedTokens: Int
+    let toolPromptTokens: Int?   // CLI ≥ 0.1.1
     let totalTokens: Int
     let totalUSD: Double
     let dailyAvgUSD: Double
@@ -64,6 +69,7 @@ struct Summary: Codable {
         case outputTokens = "output_tokens"
         case thoughtsTokens = "thoughts_tokens"
         case cachedTokens = "cached_tokens"
+        case toolPromptTokens = "tool_prompt_tokens"
         case totalTokens = "total_tokens"
         case totalUSD = "total_usd"
         case dailyAvgUSD = "daily_avg_usd"
