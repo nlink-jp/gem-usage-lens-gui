@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-09-05
+
+Bundles gem-usage-lens v0.1.4, which follows gem-agent ADR-0071 (v0.66.0:
+session ids are UUIDs and `/clear` opens a new transcript). The CLI's
+parsing needed no change; its `sessions` listing is now chronological with
+STARTED / LAST columns, and every `report --json` row carries
+`first_record` / `last_record`. The app reads neither the session listing
+nor the new keys (unknown keys are ignored on decode), so there is no
+app-side change.
+
 ## [0.1.4] - 2026-09-03
 
 Bundles gem-usage-lens v0.1.3: `gemini-3.8-flash` (released 2026-09-02) is
