@@ -45,6 +45,15 @@ assets/              AppIcon-1024.png (→ AppIcon.icns at build)
 
 ## Gotchas / conventions
 
+- **The release build pins the linked SDK.** macOS decides which generation of
+  window chrome to draw from `LC_BUILD_VERSION`'s sdk field, and the Xcode 27 /
+  Swift 6.4 `swift build` stamps it with the deployment target, not the SDK it
+  compiled against — an app shipped that way draws with the previous design
+  (square window corners). `make build` passes `-platform_version macos
+  $(MACOS_MIN) $(MACOS_SDK)` (the minimum read from Package.swift, so it is
+  stated once), and `make verify-release` fails if the built bundle's sdk is not
+  the current one. Signing, notarization and every test pass either way, so the
+  gate is the only thing that can catch it.
 - **CLI is the data source, including the budget.** `BudgetSettings.cliArguments`
   turns the UserDefaults into `budget --limit-usd/--limit-tokens/--warn/--critical
   --tz local --json`; `BudgetStatus` decodes the answer. Nothing here computes a
