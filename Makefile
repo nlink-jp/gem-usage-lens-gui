@@ -116,4 +116,7 @@ BREW_DESC := Menu-bar app showing today's gem-agent (Vertex AI Gemini) usage cos
 BREW_NAME := $(NAME)
 BREW_APP := $(APP_NAME).app
 BREW_BUNDLE_ID := $(BUNDLE_ID)
+# The cask must not advertise an OS the app cannot launch on: the shared template
+# defaults to :big_sur, and Package.swift here says macOS 14.
+BREW_MACOS_FLOOR := :sonoma
 include scripts/release-brew.mk
