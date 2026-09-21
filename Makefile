@@ -10,7 +10,17 @@ APP_BUNDLE  := $(DIST_DIR)/$(APP_NAME).app
 # Contents/Resources so the .app is self-contained. Override CLI_BIN to point at
 # a freshly built binary; if it's missing, the app falls back to finding the CLI
 # on PATH / via $GEM_USAGE_LENS_BIN at runtime.
-CLI_BIN ?= ../gem-usage-lens/dist/gem-usage-lens
+# The release binary first: the CLI's `make package` leaves only
+# dist/gem-usage-lens-darwin-arm64, `make build` leaves dist/gem-usage-lens.
+CLI_BIN ?= $(firstword $(wildcard ../gem-usage-lens/dist/gem-usage-lens-darwin-arm64 ../gem-usage-lens/dist/gem-usage-lens))
+
+# The CLI version this app must ship, as a release tag. The app's behaviour *is*
+# the bundled CLI's, and a release build resolves that bundled copy first, so a
+# CLI fix reaches this app's users only through a new build of it. verify-release
+# refuses a bundle whose CLI is missing, is a development build, or reports any
+# other version. Bump it in the same commit that bundles a newer CLI — and when
+# the CLI is released, this line is the reminder that this app must follow.
+CLI_VERSION ?= v0.1.4
 
 # macOS Developer ID signing / notarization (see nlink-jp/.github CONVENTIONS.md
 # §Code Signing → GUI apps). Pure SwiftUI/AppKit needs no JIT entitlements —
@@ -83,11 +93,13 @@ verify-release:
 		echo "verify-release: FAIL — release zip missing: $(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip"; exit 1; }
 	@cli="$(APP_BUNDLE)/Contents/Resources/gem-usage-lens"; \
 		test -x "$$cli" || { echo "verify-release: FAIL — no bundled CLI at $$cli (build the CLI first; see CLI_BIN)"; exit 1; }; \
-		v=$$("$$cli" --version 2>/dev/null | awk '{print $$NF}'); \
-		echo "$$v" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$$' || { \
-			echo "verify-release: FAIL — bundled CLI reports '$$v'. Bundle a release build of the CLI"; \
-			echo "  (a clean vX.Y.Z tag: no -dirty, no -N-g<sha>) — a stale CLI silently removes"; \
-			echo "  the features this app's CHANGELOG promises. Rebuild it at its tag, then make package."; exit 1; }; \
+		echo "$(CLI_VERSION)" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$$' || { \
+			echo "verify-release: FAIL — CLI_VERSION '$(CLI_VERSION)' is not a release tag (vX.Y.Z)."; exit 1; }; \
+		v=$$("$$cli" --version 2>/dev/null | head -1 | awk '{print $$NF}'); \
+		test "$$v" = "$(CLI_VERSION)" || { \
+			echo "verify-release: FAIL — bundled CLI reports '$$v', not $(CLI_VERSION)."; \
+			echo "  Bundle the release build of the CLI at its tag (no -dirty, no -N-g<sha>): this app's"; \
+			echo "  behaviour is the CLI's, and a stale or development CLI would ship under this version."; exit 1; }; \
 		echo "verify-release: bundled CLI $$v"
 	@sdk=$$(otool -l "$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)" | awk '/LC_BUILD_VERSION/{f=1} f && /^ *sdk /{print $$2; exit}'); \
 		test "$$sdk" = "$(MACOS_SDK)" || { \

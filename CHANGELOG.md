@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`make verify-release` now pins the bundled CLI to one version.** It already
+  refused a missing CLI and a development build, but accepted any clean tag, so an
+  app built against an older CLI release passed. `CLI_VERSION` now states the CLI
+  this release ships, and the bundled binary must report exactly that tag. `CLI_BIN`
+  also finds the CLI's release binary (`dist/<cli>-darwin-arm64`, which is what its
+  `make package` leaves) before the development one.
+
 ## [0.1.5] - 2026-09-05
 
 Bundles gem-usage-lens v0.1.4, which follows gem-agent ADR-0071 (v0.66.0:
