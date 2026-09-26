@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- The release zip no longer carries AppleDouble (`._*`) entries: the app is
+  zipped with `ditto --norsrc --noextattr`, so its signature survives unpacking
+  with `unzip`. `make verify-release` refuses a zip that carries them.
 - **`make verify-release` now pins the bundled CLI to one version.** It already
   refused a missing CLI and a development build, but accepted any clean tag, so an
   app built against an older CLI release passed. `CLI_VERSION` now states the CLI

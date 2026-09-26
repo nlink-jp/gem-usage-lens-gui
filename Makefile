@@ -79,7 +79,7 @@ build-app: build
 ## package: build-app, notarize + staple the .app, then zip for release
 package: build-app
 	@$(NOTARIZE_SCRIPT) $(APP_BUNDLE) "$(NOTARY_PROFILE)"
-	@cd $(DIST_DIR) && /usr/bin/ditto -c -k --keepParent $(APP_NAME).app $(NAME)-$(VERSION)-darwin-arm64.zip
+	@cd $(DIST_DIR) && /usr/bin/ditto --norsrc --noextattr -c -k --keepParent $(APP_NAME).app $(NAME)-$(VERSION)-darwin-arm64.zip
 	@ls -la $(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip
 
 ## verify-release: refuse to release an un-notarized build (marker + staple gate)
@@ -91,7 +91,7 @@ verify-release:
 	@xcrun stapler validate $(APP_BUNDLE)
 	@test -f "$(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip" || { \
 		echo "verify-release: FAIL — release zip missing: $(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip"; exit 1; }
-	@scripts/verify-app-icon.sh "$(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip"
+	@scripts/verify-app-zip.sh "$(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip"
 	@cli="$(APP_BUNDLE)/Contents/Resources/gem-usage-lens"; \
 		test -x "$$cli" || { echo "verify-release: FAIL — no bundled CLI at $$cli (build the CLI first; see CLI_BIN)"; exit 1; }; \
 		echo "$(CLI_VERSION)" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$$' || { \
