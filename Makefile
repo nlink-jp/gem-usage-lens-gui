@@ -91,6 +91,7 @@ verify-release:
 	@xcrun stapler validate $(APP_BUNDLE)
 	@test -f "$(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip" || { \
 		echo "verify-release: FAIL — release zip missing: $(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip"; exit 1; }
+	@scripts/verify-app-icon.sh "$(DIST_DIR)/$(NAME)-$(VERSION)-darwin-arm64.zip"
 	@cli="$(APP_BUNDLE)/Contents/Resources/gem-usage-lens"; \
 		test -x "$$cli" || { echo "verify-release: FAIL — no bundled CLI at $$cli (build the CLI first; see CLI_BIN)"; exit 1; }; \
 		echo "$(CLI_VERSION)" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$$' || { \
