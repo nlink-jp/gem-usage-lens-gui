@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Bundles gem-usage-lens v0.2.0**, which prices each call at the rate in
+  force when it was made. Nothing changes on screen today: no stored cost moves.
+  It is the groundwork for the Gemini 3.8 / 3.7 / 3.6 Flash price change Google
+  lists for 2027-01-01, which reaches this app only through a later release
+  bundling the CLI that adds it — the app ingests and reprices with its bundled
+  CLI.
+
 ### Fixed
 
 - The release zip no longer carries AppleDouble (`._*`) entries: the app is

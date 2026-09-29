@@ -20,7 +20,7 @@ CLI_BIN ?= $(firstword $(wildcard ../gem-usage-lens/dist/gem-usage-lens-darwin-a
 # refuses a bundle whose CLI is missing, is a development build, or reports any
 # other version. Bump it in the same commit that bundles a newer CLI — and when
 # the CLI is released, this line is the reminder that this app must follow.
-CLI_VERSION ?= v0.1.4
+CLI_VERSION ?= v0.2.0
 
 # macOS Developer ID signing / notarization (see nlink-jp/.github CONVENTIONS.md
 # §Code Signing → GUI apps). Pure SwiftUI/AppKit needs no JIT entitlements —
