@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-09-29
+
 ### Changed
 
 - **Bundles gem-usage-lens v0.2.0**, which prices each call at the rate in
