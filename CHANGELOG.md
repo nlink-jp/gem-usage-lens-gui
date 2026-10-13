@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-10-14
+
+### Changed
+
+- **Bundles gem-usage-lens v0.2.1**, which prices Gemini 4 Argon
+  (`gemini-4-argon`, $2 / $10 per 1M tokens, promotional through 2026-11-30)
+  and prices a model id written with Google's publisher qualification
+  (`google/gemini-4-argon`) as the model it names. Argon calls recorded
+  before this update show as unpriced; press **Reprice** on the badge once to
+  price them. The app ingests and reprices with its bundled CLI, so the older
+  app would keep recording them at $0.
+
 ## [0.1.6] - 2026-09-29
 
 ### Changed
