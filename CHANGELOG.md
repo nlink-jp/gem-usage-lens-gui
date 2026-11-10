@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.9] - 2026-11-11
+
+### Changed
+
+- **Bundles gem-usage-lens v0.2.3**, which prices Gemini 4 Carbon
+  (`gemini-4-carbon`, $2 / $10 per 1M tokens, promotional through 2026-11-30)
+  and corrects Gemini 4 Argon's cached input, which was priced at twice the
+  pricing page's figure ($0.20 instead of $0.10 per 1M tokens). Carbon calls
+  recorded before this update show as unpriced; press **Reprice** on the badge
+  once to price them. The Argon correction raises no badge — the calls were
+  priced, only too high — so run `gem-usage-lens reprice` once to apply it to
+  the history already stored; new calls are priced correctly either way. See
+  the CLI's CHANGELOG.
+
 ## [0.1.8] - 2026-11-04
 
 ### Changed
