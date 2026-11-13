@@ -92,6 +92,10 @@ final class DecodeTests: XCTestCase {
         XCTAssertEqual(PopoverView.compact(500), "500")
         XCTAssertEqual(PopoverView.compact(12_345), "12.3K")
         XCTAssertEqual(PopoverView.compact(1_234_567), "1.2M")
+        XCTAssertEqual(PopoverView.compact(999_000_000), "999.0M")
+        // Billions get their own unit: a quarter's tokens read "25678.8M" without it.
+        XCTAssertEqual(PopoverView.compact(1_000_000_000), "1.0B")
+        XCTAssertEqual(PopoverView.compact(25_678_800_000), "25.7B")
     }
 
     func testAxisDayLabels() {

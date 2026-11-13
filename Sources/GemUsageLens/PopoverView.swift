@@ -226,10 +226,11 @@ struct PopoverView: View {
         }
     }
 
-    /// 1_234_567 → "1.2M", 12_345 → "12.3K".
+    /// 1_234_567 → "1.2M", 12_345 → "12.3K", 25_678_800_000 → "25.7B".
     static func compact(_ n: Int) -> String {
         let v = Double(n)
         switch v {
+        case 1_000_000_000...: return String(format: "%.1fB", v / 1_000_000_000)
         case 1_000_000...: return String(format: "%.1fM", v / 1_000_000)
         case 1_000...: return String(format: "%.1fK", v / 1_000)
         default: return "\(n)"

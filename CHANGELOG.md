@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   keep about a dozen labels had no effect, so 30 and 90 days were a smear of
   overlapping dates. The labels are thinned again, and the last day's label
   no longer lands on top of its neighbour.
+- Token counts of a billion or more are shown in billions ("25.7B") instead
+  of as thousands of millions ("25678.8M").
 - The three breakdown boxes stay side by side at every width instead of
   restacking below 700 points, where they no longer fit the window's height.
 
