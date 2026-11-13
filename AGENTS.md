@@ -31,7 +31,7 @@ Sources/GemUsageLens/
   UsageModel.swift   ObservableObject; timer → ingest + summaries + budget; loadAnalysis(); notifications
   CLIRunner.swift    locate + run the CLI, decode JSON (CLIJSON.decoder for RFC 3339 dates)
   Models.swift       Codable Row / Summary / BudgetStatus (match the CLI's --json)
-  MenuBarMode.swift  price / tokens / both / monthly
+  MenuBarMode.swift  price / tokens / both / month (spent so far) / monthly (budget left, labelled "Left")
   Settings.swift     UserDefaults keys + BudgetSettings snapshot → CLI `budget` flags
   LoginItem.swift    SMAppService wrapper for launch-at-login (pure state mapping)
   AppVersion.swift   the build's version for display (pure fallback rule)

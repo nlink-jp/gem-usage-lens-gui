@@ -48,6 +48,8 @@ struct GemUsageLensApp: App {
             colored(Text(UsageModel.menuLabel(model.todayPrice, unpriced: unpriced)), Self.color(state))
         case .tokens:
             colored(Text(UsageModel.menuLabel(model.todayTokens, unpriced: unpriced)), Self.color(state))
+        case .month:
+            colored(Text(UsageModel.menuLabel(model.monthPrice, unpriced: unpriced)), Self.color(state))
         case .monthly:
             colored(Text(UsageModel.menuLabel(model.monthlyRemainingLabel, unpriced: unpriced)), Self.color(state))
         case .both:

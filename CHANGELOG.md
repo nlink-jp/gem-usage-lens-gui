@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   monitor. A **This month** row now shows the cost and billed tokens since
   the 1st whether or not a budget is set. When the budget watches cost, its
   own section already prints the figure and the row is left out.
+- **A Month mode for the menu bar**: this calendar month's cost so far,
+  beside the modes that show today.
+
+### Changed
+
+- The menu-bar mode that shows the budget remaining is now labelled **Left**
+  (was **Monthly**), to tell it apart from **Month**. A stored choice keeps
+  its meaning.
 
 ## [0.1.9] - 2026-11-11
 

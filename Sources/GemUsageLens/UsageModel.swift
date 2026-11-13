@@ -49,6 +49,18 @@ final class UsageModel: ObservableObject {
         return PopoverView.compact(s.totalTokens)
     }
 
+    /// This calendar month's cost so far as "$76.42" (menu bar).
+    var monthPrice: String {
+        Self.monthPriceLabel(monthSummary, failed: lastError != nil)
+    }
+
+    /// Pure form of `monthPrice`: the amount, or the same placeholders the
+    /// today figures use while loading ("…") or after a failure ("—").
+    static func monthPriceLabel(_ s: Summary?, failed: Bool) -> String {
+        if let s { return String(format: "$%.2f", s.totalUSD) }
+        return failed ? "—" : "…"
+    }
+
     /// The monthly-remaining menu-bar label — the amount left plus the same
     /// figure as a share of the budget ("$116 · 58%"), since a bare amount says
     /// nothing about how much of the month it covers. Falls back to today's

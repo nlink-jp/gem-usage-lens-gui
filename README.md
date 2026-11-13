@@ -36,8 +36,9 @@ it — point the CLI at the directory with `[sources] sessions_root` in
 
 ## What you see
 
-**Menu bar** — today's cost (`$1.47`), today's billed tokens, both, or the
-monthly budget remaining (`$98 · 98%`). The label turns orange / red as the
+**Menu bar** — today's cost (`$1.47`), today's billed tokens, both, this
+calendar month's cost so far (**Month**), or what is left of the monthly
+budget (**Left**, `$98 · 98%`). The label turns orange / red as the
 budget crosses its warning / critical thresholds, and carries `⚠︎` while the
 store holds calls priced at $0 (see below).
 

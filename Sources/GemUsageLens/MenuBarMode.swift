@@ -5,7 +5,8 @@ enum MenuBarMode: String, CaseIterable, Identifiable {
     case price    // today's cost, "$12.34"
     case tokens   // today's billed tokens, "277M"
     case both     // two rows: price over tokens
-    case monthly  // monthly budget remaining, "$120 · 60%"
+    case month    // this calendar month's cost so far, "$76.42"
+    case monthly  // monthly budget remaining, "$120 · 60%" (raw value kept from before `month` existed)
 
     var id: String { rawValue }
 
@@ -14,7 +15,10 @@ enum MenuBarMode: String, CaseIterable, Identifiable {
         case .price: return "Price"
         case .tokens: return "Tokens"
         case .both: return "Both"
-        case .monthly: return "Monthly"
+        case .month: return "Month"
+        // "Left", not "Monthly": beside "Month" (what was spent) the picker
+        // has to say this one is what remains of the budget.
+        case .monthly: return "Left"
         }
     }
 }

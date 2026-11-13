@@ -22,8 +22,9 @@ no transcripts to read yet.
 
 ## 3. Choose what the menu bar shows
 
-Click the item and use the **Menu bar** picker: Price, Tokens, Both, or
-Monthly (budget remaining, e.g. `$98 · 98%`).
+Click the item and use the **Menu bar** picker: Price, Tokens, Both (all
+three are today's figures), Month (this calendar month's cost so far), or
+Left (budget remaining, e.g. `$98 · 98%`).
 
 ## 4. Set a monthly budget
 
