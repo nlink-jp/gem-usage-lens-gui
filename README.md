@@ -49,8 +49,11 @@ monthly budget bar with used / left in amount and percent, the reset date and
 a pace line ("On pace for $23.81 (24%) by the reset"); the running version;
 buttons for Analysis, Settings, Refresh, Quit.
 
-**Analysis window** — daily cost or tokens for the last 7 / 30 / 90 days
-(optionally stacked by model), plus cost by model, by call source (main /
+**Analysis window** — cost or tokens for the last 7 / 30 / 90 days or for
+**This month** (since the 1st), drawn day by day or as the **Cumulative**
+running total, optionally stacked by model. For This month, the cumulative
+chart also draws the monthly budget as a line when the budget is measured in
+what the chart plots. Plus cost by model, by call source (main /
 risk / compaction / web search …) and by project.
 
 **Settings window** — **Launch at login** (a macOS login item; approve it in System Settings › General › Login Items if asked), then the monthly budget: on/off, notifications, measure by

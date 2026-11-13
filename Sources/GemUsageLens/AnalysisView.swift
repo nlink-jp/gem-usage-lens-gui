@@ -6,7 +6,12 @@ enum DailyMetric: String, CaseIterable, Identifiable {
     case cost, tokens
     var id: String { rawValue }
     var label: String { self == .cost ? "Cost" : "Tokens" }
-    var title: String { self == .cost ? "Daily cost (USD)" : "Daily billed tokens (prompt + output + thoughts)" }
+
+    /// The chart's heading for the chosen series.
+    func title(_ series: DailySeries) -> String {
+        let what = self == .cost ? "cost (USD)" : "billed tokens (prompt + output + thoughts)"
+        return "\(series.label) \(what)"
+    }
 
     /// The plotted value for a row.
     func value(_ r: Row) -> Double {
@@ -25,6 +30,15 @@ enum DailyMetric: String, CaseIterable, Identifiable {
     }
 }
 
+/// How the day-by-day chart draws the period: each day on its own, or the
+/// running total — the figure a calendar-month bill is counted in. Persisted
+/// via @AppStorage.
+enum DailySeries: String, CaseIterable, Identifiable {
+    case daily, cumulative
+    var id: String { rawValue }
+    var label: String { self == .daily ? "Daily" : "Cumulative" }
+}
+
 /// The expanded analysis window: daily cost trend, per-model / per-source /
 /// top-project breakdowns, over a selectable period. Data comes from the
 /// CLI's report --json.
@@ -32,6 +46,7 @@ struct AnalysisView: View {
     @EnvironmentObject var model: UsageModel
     @AppStorage("dailyMetric") private var dailyMetric: DailyMetric = .cost
     @AppStorage("stackByModel") private var stackByModel = false
+    @AppStorage("dailySeries") private var dailySeries: DailySeries = .daily
     @State private var hoverKey: String?
     @State private var hoverPoint: CGPoint?
 
@@ -60,6 +75,8 @@ struct AnalysisView: View {
                     Text("7 days").tag("7d")
                     Text("30 days").tag("30d")
                     Text("90 days").tag("90d")
+                    // The CLI's own keyword: since the 1st, local time.
+                    Text("This month").tag("month")
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
@@ -93,6 +110,7 @@ struct AnalysisView: View {
     }
 
     private var periodLabel: String {
+        if model.period == "month" { return "This month" }
         if model.period.hasSuffix("d"), let n = Int(model.period.dropLast()) {
             return "Last \(n) days"
         }
@@ -105,13 +123,20 @@ struct AnalysisView: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(spacing: 12) {
-                    Text(dailyMetric.title)
+                    Text(dailyMetric.title(dailySeries))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
                     Toggle("By model", isOn: $stackByModel)
                         .toggleStyle(.checkbox)
                         .controlSize(.small)
+                    Picker("", selection: $dailySeries) {
+                        ForEach(DailySeries.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .fixedSize()
+                    .controlSize(.small)
                     Picker("", selection: $dailyMetric) {
                         ForEach(DailyMetric.allCases) { Text($0.label).tag($0) }
                     }
@@ -130,6 +155,8 @@ struct AnalysisView: View {
     private var dailyChart: some View {
         if model.dailyRows.isEmpty {
             emptyChart
+        } else if dailySeries == .cumulative {
+            if stackByModel { cumulativeStackedChart } else { cumulativeChart }
         } else if stackByModel {
             stackedChart
         } else {
@@ -241,7 +268,143 @@ struct AnalysisView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private func stackTooltip(day: String, points: [DayModelPoint]) -> some View {
+    // MARK: - Cumulative charts
+
+    /// The running total over the period. With "This month" and a budget in
+    /// the plotted measure, the limit is drawn as a line to climb towards.
+    private var cumulativeChart: some View {
+        let points = Self.cumulativePoints(model.dailyRows, metric: dailyMetric)
+        let days = points.map(\.day)
+        return Chart {
+            ForEach(points) { p in
+                if points.count > 1 {
+                    AreaMark(x: .value("Day", p.day), y: .value(dailyMetric.label, p.total))
+                        .foregroundStyle(Color.accentColor.opacity(0.18))
+                    LineMark(x: .value("Day", p.day), y: .value(dailyMetric.label, p.total))
+                        .foregroundStyle(Color.accentColor)
+                } else {
+                    // One day (the 1st of the month) has no line to draw.
+                    BarMark(x: .value("Day", p.day), y: .value(dailyMetric.label, p.total))
+                        .foregroundStyle(Color.accentColor.gradient)
+                }
+            }
+            budgetRule
+            hoverRule
+        }
+        .chartXScale(domain: days)
+        .chartXAxis { dayAxis(days) }
+        .chartYAxis { metricYAxis }
+        .chartOverlay { proxy in
+            hoverLayer(proxy) { key in
+                if let p = points.first(where: { $0.day == key }) {
+                    cumulativeTooltip(p)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// The running total split by model, stacked.
+    private var cumulativeStackedChart: some View {
+        let days = model.dailyRows.map(\.key)
+        let ranked = rankedModels()
+        let rank = Dictionary(uniqueKeysWithValues: ranked.enumerated().map { ($1, $0) })
+        let points = Self.cumulativeByModel(days: days, points: dailyByModelPoints).sorted {
+            $0.day != $1.day ? $0.day < $1.day : (rank[$0.model] ?? 0) < (rank[$1.model] ?? 0)
+        }
+        return Chart {
+            ForEach(points) { p in
+                if days.count > 1 {
+                    AreaMark(x: .value("Day", p.day), y: .value(dailyMetric.label, metricOf(p)))
+                        .foregroundStyle(by: .value("Model", p.model))
+                } else {
+                    BarMark(x: .value("Day", p.day), y: .value(dailyMetric.label, metricOf(p)))
+                        .foregroundStyle(by: .value("Model", p.model))
+                }
+            }
+            budgetRule
+            hoverRule
+        }
+        .chartForegroundStyleScale(domain: ranked)
+        .chartXScale(domain: days)
+        .chartXAxis { dayAxis(days) }
+        .chartYAxis { metricYAxis }
+        .chartLegend(position: .bottom, spacing: 8)
+        .chartOverlay { proxy in
+            hoverLayer(proxy, tip: CGSize(width: 200, height: 170)) { key in
+                stackTooltip(day: key, points: points.filter { $0.day == key && metricOf($0) > 0 },
+                             caption: "Total so far")
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// The monthly limit as a horizontal line, when the chart can be read
+    /// against it (see `budgetLimit`).
+    @ChartContentBuilder
+    private var budgetRule: some ChartContent {
+        if let limit = Self.budgetLimit(period: model.period, metric: dailyMetric, budget: model.budget) {
+            RuleMark(y: .value("Budget", limit))
+                .foregroundStyle(.red.opacity(0.6))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
+                .annotation(position: .bottom, alignment: .leading) {
+                    Text("Budget \(metricString(limit))")
+                        .font(.caption2).foregroundStyle(.secondary)
+                }
+        }
+    }
+
+    @ChartContentBuilder
+    private var hoverRule: some ChartContent {
+        if let key = hoverKey {
+            RuleMark(x: .value("Day", key))
+                .foregroundStyle(.secondary.opacity(0.35))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+        }
+    }
+
+    /// Track the cursor over a day-keyed chart and float `content(day)` by it.
+    private func hoverLayer<Tip: View>(_ proxy: ChartProxy, tip: CGSize = CGSize(width: 150, height: 86),
+                                       @ViewBuilder content: @escaping (String) -> Tip) -> some View {
+        GeometryReader { geo in
+            Rectangle().fill(.clear).contentShape(Rectangle())
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let point):
+                        guard let plot = proxy.plotFrame else { clearHover(); return }
+                        let x = point.x - geo[plot].minX
+                        if let key: String = proxy.value(atX: x, as: String.self) {
+                            hoverKey = key
+                            hoverPoint = point
+                        }
+                    case .ended:
+                        clearHover()
+                    }
+                }
+            if let key = hoverKey, let pt = hoverPoint {
+                content(key)
+                    .fixedSize()
+                    .position(Self.tooltipPosition(near: pt, in: geo.size, tip: tip))
+                    .allowsHitTesting(false)
+            }
+        }
+    }
+
+    /// Hover tooltip for the running total: where it stands on that day, and
+    /// what the day itself added.
+    private func cumulativeTooltip(_ p: CumulativePoint) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(p.day).font(.caption.bold())
+            Text("\(metricString(p.total)) so far").font(.caption).monospacedDigit()
+            Text("+\(metricString(p.added)) that day").font(.caption2).foregroundStyle(.secondary)
+        }
+        .padding(6)
+        .background(RoundedRectangle(cornerRadius: 6).fill(.regularMaterial))
+        .shadow(radius: 2)
+        .fixedSize()
+    }
+
+    private func stackTooltip(day: String, points: [DayModelPoint], caption: String = "Total") -> some View {
         let sorted = points.sorted { metricOf($0) > metricOf($1) }
         return VStack(alignment: .leading, spacing: 3) {
             Text(day).font(.caption.bold())
@@ -258,7 +421,7 @@ struct AnalysisView: View {
                 }
                 Divider()
                 HStack(spacing: 10) {
-                    Text("Total").font(.caption2.bold())
+                    Text(caption).font(.caption2.bold())
                     Spacer()
                     Text(metricString(points.reduce(0) { $0 + metricOf($1) }))
                         .font(.caption2.bold()).monospacedDigit()
@@ -429,6 +592,59 @@ struct AnalysisView: View {
                 cost: r.costUSD,
                 tokens: Double(r.totalTokens)
             )
+        }
+    }
+
+    // MARK: - Cumulative data
+
+    /// One day of the running total: where it stands, and what the day added.
+    struct CumulativePoint: Identifiable, Equatable {
+        let day: String
+        let total: Double
+        let added: Double
+        var id: String { day }
+    }
+
+    /// The running total of `metric` over day rows, in the order given (the
+    /// CLI's dense series is already chronological).
+    static func cumulativePoints(_ rows: [Row], metric: DailyMetric) -> [CumulativePoint] {
+        var sum = 0.0
+        return rows.map { r in
+            let v = metric.value(r)
+            sum += v
+            return CumulativePoint(day: r.key, total: sum, added: v)
+        }
+    }
+
+    /// Per-model running totals over `days`. The day,model rows are sparse (a
+    /// model has a row only on the days it was called), but a stacked area
+    /// needs every model on every day, so each model is carried forward — and
+    /// starts at zero before its first call.
+    static func cumulativeByModel(days: [String], points: [DayModelPoint]) -> [DayModelPoint] {
+        var byModel: [String: [String: DayModelPoint]] = [:]
+        for p in points { byModel[p.model, default: [:]][p.day] = p }
+        var out: [DayModelPoint] = []
+        for model in byModel.keys.sorted() {
+            var cost = 0.0, tokens = 0.0
+            for day in days {
+                if let p = byModel[model]?[day] {
+                    cost += p.cost
+                    tokens += p.tokens
+                }
+                out.append(DayModelPoint(id: "\(day)|\(model)", day: day, model: model, cost: cost, tokens: tokens))
+            }
+        }
+        return out
+    }
+
+    /// The limit to draw across the cumulative chart, or nil. Only "This
+    /// month" spans the budget's own window, and only a limit in the plotted
+    /// measure can share its axis.
+    static func budgetLimit(period: String, metric: DailyMetric, budget: BudgetStatus?) -> Double? {
+        guard period == "month", let b = budget, let w = b.watched, let basis = b.watchedBasis else { return nil }
+        switch (metric, basis) {
+        case (.cost, .cost), (.tokens, .tokens): return w.limit
+        default: return nil
         }
     }
 

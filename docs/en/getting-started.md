@@ -43,8 +43,11 @@ orange at the warning threshold and red at the critical one.
 ## 5. Look deeper
 
 **Analysis…** opens a window with the daily trend for the last 7 / 30 / 90
-days (toggle **By model** to stack it), and cost by model, by call source and
-by project. Hover a bar for the exact figures.
+days or for **This month** (toggle **By model** to stack it), and cost by
+model, by call source and by project. Switch **Daily** to **Cumulative** to
+see the running total instead — for This month, that is the bill as it builds
+up, with your budget drawn as a line if you set one in the same measure.
+Hover the chart for the exact figures.
 
 ## What the numbers mean
 

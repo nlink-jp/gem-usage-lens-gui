@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   own section already prints the figure and the row is left out.
 - **A Month mode for the menu bar**: this calendar month's cost so far,
   beside the modes that show today.
+- **This month and a cumulative series in the analysis window.** The period
+  picker gains **This month** (since the 1st), and the day-by-day chart can
+  be switched from **Daily** to **Cumulative** — the running total, also
+  stackable by model. For This month, the monthly budget is drawn across the
+  cumulative chart as a line when it is measured in what the chart plots.
 
 ### Changed
 

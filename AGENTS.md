@@ -35,8 +35,8 @@ Sources/GemUsageLens/
   Settings.swift     UserDefaults keys + BudgetSettings snapshot → CLI `budget` flags
   LoginItem.swift    SMAppService wrapper for launch-at-login (pure state mapping)
   AppVersion.swift   the build's version for display (pure fallback rule)
-  PopoverView.swift  today + last 30 + unpriced badge + monthly bar + pace
-  AnalysisView.swift Swift Charts: daily / stacked by model / by model / by source / top projects
+  PopoverView.swift  today + this month + last 30 + unpriced badge + monthly bar + pace
+  AnalysisView.swift Swift Charts: daily or cumulative (each optionally stacked by model) / by model / by source / top projects
   SettingsView.swift monthly-budget Form
 Info.plist           LSUIElement, LSMultipleInstancesProhibited
 scripts/             codesign-darwin-app.sh, notarize-darwin-app.sh, make-icns.sh, brew helpers
@@ -72,6 +72,13 @@ assets/              AppIcon-1024.png (→ AppIcon.icns at build)
 - **Token vocabulary**: prompt / cached (a share of prompt, not an addition) /
   output / thoughts / billed (`total_tokens` = prompt + output + thoughts).
   Charts plot `total_tokens`. Never add cached to anything.
+- **Month to date** comes from `report --since month --summary` (the CLI's
+  keyword; `calendarSince` passes it through), not from `budget`, so it exists
+  with the monitor off. The popover row is hidden only when the budget section
+  already prints the cost (`showsMonthRow`). The analysis window's cumulative
+  series is a running sum of the CLI's daily rows — presentation, like
+  `percentPair`; the budget line is drawn only for the `month` period in the
+  budget's own measure (`budgetLimit`).
 - **Partial records**: `partial_records` (summary, rows, budget) count calls
   from pre-ADR-0057 transcripts; `UsageModel.partialLabel` renders the
   lower-bound note in the popover, analysis header and budget section.
