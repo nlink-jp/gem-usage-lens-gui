@@ -226,12 +226,15 @@ struct PopoverView: View {
         }
     }
 
-    /// 1_234_567 → "1.2M", 12_345 → "12.3K", 25_678_800_000 → "25.7B".
+    /// 1_234_567 → "1.2M", 12_345 → "12.3K", 25_678_800_000 → "25.68B".
+    /// Billions keep two decimals: a budget counted in them must still move
+    /// in 10M steps, and axis ticks 250M apart must not share a label. Each
+    /// unit starts where the one below would round up to "1000.0".
     static func compact(_ n: Int) -> String {
         let v = Double(n)
         switch v {
-        case 1_000_000_000...: return String(format: "%.1fB", v / 1_000_000_000)
-        case 1_000_000...: return String(format: "%.1fM", v / 1_000_000)
+        case 999_950_000...: return String(format: "%.2fB", v / 1_000_000_000)
+        case 999_950...: return String(format: "%.1fM", v / 1_000_000)
         case 1_000...: return String(format: "%.1fK", v / 1_000)
         default: return "\(n)"
         }

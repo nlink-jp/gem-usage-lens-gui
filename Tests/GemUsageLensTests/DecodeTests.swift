@@ -94,8 +94,17 @@ final class DecodeTests: XCTestCase {
         XCTAssertEqual(PopoverView.compact(1_234_567), "1.2M")
         XCTAssertEqual(PopoverView.compact(999_000_000), "999.0M")
         // Billions get their own unit: a quarter's tokens read "25678.8M" without it.
-        XCTAssertEqual(PopoverView.compact(1_000_000_000), "1.0B")
-        XCTAssertEqual(PopoverView.compact(25_678_800_000), "25.7B")
+        XCTAssertEqual(PopoverView.compact(1_000_000_000), "1.00B")
+        XCTAssertEqual(PopoverView.compact(25_678_800_000), "25.68B")
+        // A token budget counted in billions still moves in 10M steps, and
+        // axis ticks 250M apart keep distinct, exact labels.
+        XCTAssertEqual(PopoverView.compact(1_949_000_000), "1.95B")
+        XCTAssertEqual(PopoverView.compact(1_250_000_000), "1.25B")
+        // No unit prints "1000.0": the next one takes over where it would.
+        XCTAssertEqual(PopoverView.compact(999_949), "999.9K")
+        XCTAssertEqual(PopoverView.compact(999_950), "1.0M")
+        XCTAssertEqual(PopoverView.compact(999_949_999), "999.9M")
+        XCTAssertEqual(PopoverView.compact(999_950_000), "1.00B")
     }
 
     func testAxisDayLabels() {
