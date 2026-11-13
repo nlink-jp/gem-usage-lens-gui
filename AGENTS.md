@@ -36,7 +36,7 @@ Sources/GemUsageLens/
   LoginItem.swift    SMAppService wrapper for launch-at-login (pure state mapping)
   AppVersion.swift   the build's version for display (pure fallback rule)
   PopoverView.swift  today + this month + last 30 + unpriced badge + monthly bar + pace
-  AnalysisView.swift Swift Charts: daily or cumulative (each optionally stacked by model) / by model / by source / top projects
+  AnalysisView.swift Swift Charts: daily or cumulative (each optionally stacked by model); plain-SwiftUI lists: by model / by source / top projects
   SettingsView.swift monthly-budget Form
 Info.plist           LSUIElement, LSMultipleInstancesProhibited
 scripts/             codesign-darwin-app.sh, notarize-darwin-app.sh, make-icns.sh, brew helpers
@@ -79,6 +79,13 @@ assets/              AppIcon-1024.png (→ AppIcon.icns at build)
   series is a running sum of the CLI's daily rows — presentation, like
   `percentPair`; the budget line is drawn only for the `month` period in the
   budget's own measure (`budgetLimit`).
+- **Category axes are checked on screen, not assumed.** Built against the
+  macOS 27 SDK, `AxisMarks(values: [String])` did not thin a category axis
+  (every day was labelled) and `AxisMarks(position: .leading)` drew a
+  horizontal bar chart's labels over its bars. So `dayAxis` filters inside the
+  `AxisMarks { value in … }` closure against `axisDayLabels`, and the three
+  breakdowns are plain SwiftUI rows (`barList`), not Charts. Tests cannot see
+  either; after touching a chart, put the view in a real window and capture it.
 - **Partial records**: `partial_records` (summary, rows, budget) count calls
   from pre-ADR-0057 transcripts; `UsageModel.partialLabel` renders the
   lower-bound note in the popover, analysis header and budget section.
