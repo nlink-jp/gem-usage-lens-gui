@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// The dropdown shown when the menu-bar item is clicked: today's cost + tokens,
-/// the last 30 days, the monthly budget, and buttons to open the analysis
+/// the month so far, the last 30 days, the monthly budget, and buttons to open the analysis
 /// window / settings / refresh / quit.
 struct PopoverView: View {
     @EnvironmentObject var model: UsageModel
@@ -31,6 +31,17 @@ struct PopoverView: View {
                 .foregroundStyle(.secondary)
 
                 Divider()
+                if let m = model.monthSummary,
+                   UsageModel.showsMonthRow(watchedBasis: model.budget?.watchedBasis) {
+                    HStack {
+                        Text("This month").foregroundStyle(.secondary)
+                        Spacer()
+                        Text("\(Self.compact(m.totalTokens)) tokens")
+                            .font(.caption2).foregroundStyle(.tertiary)
+                        Text(String(format: "$%.2f", m.totalUSD)).monospacedDigit()
+                    }
+                    .font(.callout)
+                }
                 HStack {
                     Text("Last 30 days").foregroundStyle(.secondary)
                     Spacer()

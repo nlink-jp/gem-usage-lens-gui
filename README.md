@@ -42,7 +42,8 @@ budget crosses its warning / critical thresholds, and carries `⚠︎` while the
 store holds calls priced at $0 (see below).
 
 **Popover** (click the item) — today's cost with prompt (and how much of it
-was cached), output, thoughts and billed tokens; the last 30 days; the
+was cached), output, thoughts and billed tokens; this calendar month so far (shown
+whether or not a budget is set); the last 30 days; the
 monthly budget bar with used / left in amount and percent, the reset date and
 a pace line ("On pace for $23.81 (24%) by the reset"); the running version;
 buttons for Analysis, Settings, Refresh, Quit.

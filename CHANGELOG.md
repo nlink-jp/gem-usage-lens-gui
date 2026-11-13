@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **This month's consumption in the popover.** Vertex AI bills per calendar
+  month, but the month's running total was shown only as part of the budget
+  monitor. A **This month** row now shows the cost and billed tokens since
+  the 1st whether or not a budget is set. When the budget watches cost, its
+  own section already prints the figure and the row is left out.
+
 ## [0.1.9] - 2026-11-11
 
 ### Changed

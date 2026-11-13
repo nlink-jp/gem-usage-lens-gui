@@ -7,6 +7,7 @@ import UserNotifications
 /// work runs off the main thread; @Published mutations are hopped back to main.
 final class UsageModel: ObservableObject {
     @Published var todaySummary: Summary?
+    @Published var monthSummary: Summary?    // the calendar month so far — what the bill is counted in
     @Published var last30USD: Double?        // actual last-30-days total (matches the analysis panel)
     @Published var last30Partial: Int = 0    // calls from pre-ADR-0057 transcripts in the last 30 days
     @Published var last30Checksum: Int = 0   // calls whose buckets don't add up (this build misreads a transcript)
@@ -63,6 +64,14 @@ final class UsageModel: ObservableObject {
         case .tokens: amount = PopoverView.compact(Int(w.remaining))
         }
         return "\(amount) · \(Self.percentPair(w.percent).remaining)%"
+    }
+
+    /// Whether the popover's plain "This month" row is shown. The budget
+    /// section already prints the month's cost when it watches cost, so the
+    /// row would only repeat it; in every other case (monitor off, or a token
+    /// budget) nothing else on screen says what the month has cost.
+    static func showsMonthRow(watchedBasis: BudgetBasisChoice?) -> Bool {
+        watchedBasis != .cost
     }
 
     // MARK: - Monthly budget
@@ -234,10 +243,13 @@ final class UsageModel: ObservableObject {
             do {
                 try CLIRunner.ingest()
                 let s = try CLIRunner.summary(since: "today")
+                // "month" is the CLI's own keyword: the 1st, in the --tz it is given.
+                let month = try CLIRunner.summary(since: "month")
                 let last30 = try CLIRunner.summary(since: Self.calendarSince("30d"))
                 let b = try self.fetchBudget()
                 DispatchQueue.main.async {
                     self.todaySummary = s
+                    self.monthSummary = month
                     self.last30USD = last30.totalUSD
                     self.last30Partial = last30.partialRecords ?? 0
                     self.last30Checksum = last30.checksumMismatches ?? 0

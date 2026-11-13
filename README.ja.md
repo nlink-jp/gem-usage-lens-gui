@@ -38,7 +38,7 @@ brew install --cask nlink-jp/tap/gem-usage-lens-gui
 $0 で計上された呼び出しが store にある間は `⚠︎` が付きます（後述）。
 
 **ポップオーバー**（アイテムをクリック） — 本日のコストと prompt（うちキャッシュ分）・
-output・thoughts・課金トークン、直近 30 日、月次予算のバー（使用 / 残りを金額と % で）、
+output・thoughts・課金トークン、当月（暦月）のここまでの消費（予算の設定がなくても表示）、直近 30 日、月次予算のバー（使用 / 残りを金額と % で）、
 リセット日、ペース行（"On pace for $23.81 (24%) by the reset"）、実行中の版数、
 Analysis / Settings / Refresh / Quit ボタン。
 
