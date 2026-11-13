@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.2] - 2026-11-13
+
+### Changed
+
+- **Bundles gem-usage-lens v0.2.4**, which prices Gemini 4 Hydrogen
+  (`gemini-4-hydrogen`, $1.50 / $7.50 per 1M tokens, cached input $0.075).
+  Hydrogen calls recorded before this update show as unpriced; press
+  **Reprice** on the badge once to price them. See the CLI's CHANGELOG, which
+  also notes two charges the figures do not include: a cache-write price the
+  pricing page schedules for Hydrogen from 2027-01-12, and Gemini 4
+  completions over 32K tokens that end in a timeout.
+
 ## [0.2.1] - 2026-11-13
 
 ### Fixed
