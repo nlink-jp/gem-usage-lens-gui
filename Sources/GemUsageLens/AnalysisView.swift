@@ -7,10 +7,16 @@ enum DailyMetric: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String { self == .cost ? "Cost" : "Tokens" }
 
-    /// The chart's heading for the chosen series.
+    /// The chart's heading for the chosen series. Kept short enough to sit
+    /// on one line beside the controls at the window's minimum width — a
+    /// heading that wraps for one metric moves the chart when it is switched.
     func title(_ series: DailySeries) -> String {
-        let what = self == .cost ? "cost (USD)" : "billed tokens (prompt + output + thoughts)"
-        return "\(series.label) \(what)"
+        "\(series.label) \(self == .cost ? "cost (USD)" : "billed tokens")"
+    }
+
+    /// What the heading leaves out, for its tooltip.
+    var titleHelp: String {
+        self == .cost ? "Cost in US dollars" : "Billed tokens = prompt + output + thoughts"
     }
 
     /// The plotted value for a row.
@@ -124,6 +130,8 @@ struct AnalysisView: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(spacing: 12) {
                     Text(dailyMetric.title(dailySeries))
+                        .lineLimit(1)
+                        .help(dailyMetric.titleHelp)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -154,6 +162,11 @@ struct AnalysisView: View {
     @ViewBuilder
     private var dailyChart: some View {
         if model.dailyRows.isEmpty {
+            emptyChart
+        } else if stackByModel && model.dailyByModelRows.isEmpty {
+            // The dense day series has a row for every day even when nothing
+            // was recorded; the per-model rows do not, and a stacked chart
+            // with no series would be a blank box.
             emptyChart
         } else if dailySeries == .cumulative {
             if stackByModel { cumulativeStackedChart } else { cumulativeChart }
@@ -343,7 +356,9 @@ struct AnalysisView: View {
     /// against it (see `budgetLimit`).
     @ChartContentBuilder
     private var budgetRule: some ChartContent {
-        if let limit = Self.budgetLimit(period: model.period, metric: dailyMetric, budget: model.budget) {
+        // The loaded period, not the picked one: the line must never sit across
+        // rows still held from another window.
+        if let limit = Self.budgetLimit(period: model.loadedPeriod, metric: dailyMetric, budget: model.budget) {
             RuleMark(y: .value("Budget", limit))
                 .foregroundStyle(.red.opacity(0.6))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
@@ -640,7 +655,7 @@ struct AnalysisView: View {
     /// The limit to draw across the cumulative chart, or nil. Only "This
     /// month" spans the budget's own window, and only a limit in the plotted
     /// measure can share its axis.
-    static func budgetLimit(period: String, metric: DailyMetric, budget: BudgetStatus?) -> Double? {
+    static func budgetLimit(period: String?, metric: DailyMetric, budget: BudgetStatus?) -> Double? {
         guard period == "month", let b = budget, let w = b.watched, let basis = b.watchedBasis else { return nil }
         switch (metric, basis) {
         case (.cost, .cost), (.tokens, .tokens): return w.limit

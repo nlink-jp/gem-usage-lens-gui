@@ -12,6 +12,15 @@ final class MonthTests: XCTestCase {
         XCTAssertFalse(UsageModel.showsMonthRow(watchedBasis: .cost))
     }
 
+    // Under a token budget the section below is also headed "This month" and
+    // prints the tokens: the row must not repeat either.
+    func testMonthRowDoesNotRepeatTheTokenBudgetSection() {
+        XCTAssertEqual(UsageModel.monthRowLabel(watchedBasis: nil), "This month")
+        XCTAssertTrue(UsageModel.monthRowShowsTokens(watchedBasis: nil))
+        XCTAssertEqual(UsageModel.monthRowLabel(watchedBasis: .tokens), "Cost this month")
+        XCTAssertFalse(UsageModel.monthRowShowsTokens(watchedBasis: .tokens))
+    }
+
     private func summary(usd: Double) throws -> Summary {
         let json = """
         {"first_day":"2026-11-01","last_day":"2026-11-13","active_days":7,"records":351,
@@ -106,11 +115,14 @@ final class MonthTests: XCTestCase {
         XCTAssertEqual(AnalysisView.budgetLimit(period: "month", metric: .tokens, budget: tokens), 1e8)
         XCTAssertNil(AnalysisView.budgetLimit(period: "month", metric: .cost, budget: tokens))
         XCTAssertNil(AnalysisView.budgetLimit(period: "month", metric: .cost, budget: nil))
+        // Nothing loaded yet (or the load for "month" has not answered).
+        XCTAssertNil(AnalysisView.budgetLimit(period: nil, metric: .cost, budget: cost))
     }
 
     func testChartTitleNamesTheSeries() {
         XCTAssertEqual(DailyMetric.cost.title(.daily), "Daily cost (USD)")
         XCTAssertEqual(DailyMetric.cost.title(.cumulative), "Cumulative cost (USD)")
-        XCTAssertEqual(DailyMetric.tokens.title(.cumulative), "Cumulative billed tokens (prompt + output + thoughts)")
+        XCTAssertEqual(DailyMetric.tokens.title(.cumulative), "Cumulative billed tokens")
+        XCTAssertEqual(DailyMetric.tokens.title(.daily), "Daily billed tokens")
     }
 }

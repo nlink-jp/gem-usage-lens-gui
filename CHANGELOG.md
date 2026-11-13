@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   month, but the month's running total was shown only as part of the budget
   monitor. A **This month** row now shows the cost and billed tokens since
   the 1st whether or not a budget is set. When the budget watches cost, its
-  own section already prints the figure and the row is left out.
+  own section already prints the figure and the row is left out; when it
+  watches tokens, the row reads **Cost this month** and shows the cost only.
 - **A Month mode for the menu bar**: this calendar month's cost so far,
   beside the modes that show today.
 - **This month and a cumulative series in the analysis window.** The period
@@ -24,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The token chart's heading is now "Daily billed tokens" / "Cumulative billed
+  tokens"; what counts as billed (prompt + output + thoughts) moved to the
+  heading's tooltip, so the heading stays on one line beside the new switch.
 - The menu-bar mode that shows the budget remaining is now labelled **Left**
   (was **Monthly**), to tell it apart from **Month**. A stored choice keeps
   its meaning.

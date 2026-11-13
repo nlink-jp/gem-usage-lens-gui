@@ -31,13 +31,15 @@ struct PopoverView: View {
                 .foregroundStyle(.secondary)
 
                 Divider()
-                if let m = model.monthSummary,
-                   UsageModel.showsMonthRow(watchedBasis: model.budget?.watchedBasis) {
+                let watched = model.budget?.watchedBasis
+                if let m = model.monthSummary, UsageModel.showsMonthRow(watchedBasis: watched) {
                     HStack {
-                        Text("This month").foregroundStyle(.secondary)
+                        Text(UsageModel.monthRowLabel(watchedBasis: watched)).foregroundStyle(.secondary)
                         Spacer()
-                        Text("\(Self.compact(m.totalTokens)) tokens")
-                            .font(.caption2).foregroundStyle(.tertiary)
+                        if UsageModel.monthRowShowsTokens(watchedBasis: watched) {
+                            Text("\(Self.compact(m.totalTokens)) tokens")
+                                .font(.caption2).foregroundStyle(.tertiary)
+                        }
                         Text(String(format: "$%.2f", m.totalUSD)).monospacedDigit()
                     }
                     .font(.callout)

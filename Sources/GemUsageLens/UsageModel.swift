@@ -24,6 +24,10 @@ final class UsageModel: ObservableObject {
 
     // Analysis window state
     @Published var period: String = "7d"
+    /// The period the rows below were loaded for. `period` changes the moment
+    /// the picker is clicked; the data follows only when the CLI answers (or
+    /// never, if it fails), so anything read against the data asks this.
+    @Published var loadedPeriod: String?
     @Published var periodSummary: Summary?
     @Published var dailyRows: [Row] = []
     @Published var dailyByModelRows: [Row] = []
@@ -84,6 +88,18 @@ final class UsageModel: ObservableObject {
     /// budget) nothing else on screen says what the month has cost.
     static func showsMonthRow(watchedBasis: BudgetBasisChoice?) -> Bool {
         watchedBasis != .cost
+    }
+
+    /// The row's label. Under a token budget the section below is headed
+    /// "This month" and counts tokens, so this row names what it adds.
+    static func monthRowLabel(watchedBasis: BudgetBasisChoice?) -> String {
+        watchedBasis == .tokens ? "Cost this month" : "This month"
+    }
+
+    /// Whether the row also prints the month's tokens — not when the budget
+    /// section already does.
+    static func monthRowShowsTokens(watchedBasis: BudgetBasisChoice?) -> Bool {
+        watchedBasis == nil
     }
 
     // MARK: - Monthly budget
@@ -372,6 +388,7 @@ final class UsageModel: ObservableObject {
                 let projects = try CLIRunner.rows(groupBy: "project", since: since, sort: "cost", top: 8)
                 let sources = try CLIRunner.rows(groupBy: "source", since: since, sort: "cost")
                 DispatchQueue.main.async {
+                    self?.loadedPeriod = period
                     self?.periodSummary = summary
                     self?.dailyRows = daily
                     self?.dailyByModelRows = dailyByModel
