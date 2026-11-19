@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- **Bundles gem-usage-lens v0.2.5**, which prices Gemini 4 Neon
+  (`gemini-4-neon`, $3.00 / $15.00 per 1M tokens, cached input $0.15).
+  Neon calls recorded before this update show as unpriced; press
+  **Reprice** on the badge once to price them. As for Hydrogen, the pricing
+  page schedules a cache-write price for Neon from 2027-01-12 that the
+  figures do not include; see the CLI's CHANGELOG.
+
 ## [0.2.2] - 2026-11-13
 
 ### Changed
